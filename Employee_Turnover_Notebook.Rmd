@@ -3,6 +3,11 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+First we load all the packages we willv be using for theis study. I recommend installing the package packman and using one of its built in function, p_load, to load/install mutliple packages at a time.
 
+```{r}
+pacman::p_load(tidyverse,readr)
+```
 
+We then load the dataset we will use for this project
 
