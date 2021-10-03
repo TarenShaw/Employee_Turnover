@@ -1,13 +1,36 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
-First we load all the packages we willv be using for theis study. I recommend installing the package packman and using one of its built in function, p_load, to load/install mutliple packages at a time.
+First we load all the packages we will be using for theis study. I recommend installing the package packman and using one of its built in function, p_load, to load/install mutliple packages at a time.
 
 ```{r}
-pacman::p_load(tidyverse,readr)
+pacman::p_load(tidyverse,readr, lubridate)
 ```
 
 We then load the dataset we will use for this project
+
+```{r include=FALSE}
+df <- readr::read_csv("HRDataset_v9.csv")
+```
+
+And we can skim our data 
+
+```{r}
+skimr::skim(df)
+```
+Of the 18 character variables, two should be coded as dates, therefore we transform them using a mutate function.
+
+```{r}
+df <- df %>% mutate(`Date of Termination` = mdy(df$`Date of Termination`), `Date of Hire` = mdy(df$`Date of Hire`), Md_termination = format(`Date of Termination`,'%Y-%m'))
+```
+
+Lets see the minimum and maximum values for our data that we are working with. 
+
+
+
+
 
