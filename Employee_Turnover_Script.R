@@ -13,8 +13,6 @@ df <- df %>% mutate(
   DateofHire = mdy(DateofHire)
 )
 
-
-
 # How many leavers per year
 df %>%
   mutate(Year_termination = year(df$`DateofTermination`)) %>%
@@ -49,6 +47,15 @@ df %>%
   theme_bw() +
   geom_hline(yintercept = median_terminations, linetype = "dashed", color = "red")
 
+# number of leavers in a year
+n_leavers <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year) %>%
+    nrow()
+}
+
+n_leavers()
+
 # number of emplyees at beginnning of year
 n_emp_year_start <- function(year = "2010") {
   fun_year <- paste(year, "-01-01", sep = "")
@@ -80,3 +87,46 @@ n_emp_year_end <- function(year = "2010") {
 
 n_emp_year_end()
 
+# Employee turnover function
+emp_turnover <- function(year = "2010") {
+
+  # Number of leavers
+
+  leavers <- df %>%
+    filter(year(DateofTermination) == year) %>%
+    nrow()
+
+  # number of employees at beginning of year
+
+  fun_year1 <- paste(year, "-01-01", sep = "")
+
+  start <- df %>%
+    select(DateofHire, DateofTermination) %>%
+    filter(
+      DateofHire <= fun_year1,
+      DateofTermination > fun_year1 | is.na(DateofTermination)
+    ) %>%
+    nrow()
+
+  # Number of employees end of year
+
+  year_num_plus <- as.character(as.numeric(year) + 1)
+  fun_year2 <- paste(year_num_plus, "-01-01", sep = "")
+
+  end <- df %>%
+    select(DateofHire, DateofTermination) %>%
+    filter(
+      DateofHire <= fun_year2,
+      DateofTermination > fun_year2 | is.na(DateofTermination)
+    ) %>%
+    nrow()
+
+  # Average number of employees
+  avg_emp_period <- (start + end) / 2
+
+  # Enmployee turnover
+
+  (leavers / avg_emp_period) * 100
+}
+
+emp_turnover()
