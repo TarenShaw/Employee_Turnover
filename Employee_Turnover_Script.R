@@ -130,3 +130,16 @@ emp_turnover <- function(year = "2010") {
 }
 
 emp_turnover()
+
+# Create a list of turnover percentages
+tot_year <- c("2010", "2011", "2012", "2013", 
+              "2014", "2015", "2016", "2017", 
+              "2018")
+
+TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
+  setNames(tot_year) %>%
+  as.data.frame() %>%
+  setNames("TurnoverRate") %>%
+  rownames_to_column("Year")
+
+View(TurnoverRate)
