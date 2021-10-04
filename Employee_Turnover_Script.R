@@ -131,15 +131,28 @@ emp_turnover <- function(year = "2010") {
 
 emp_turnover()
 
-# Create a list of turnover percentages
+# Create a list of year
 tot_year <- c("2010", "2011", "2012", "2013", 
               "2014", "2015", "2016", "2017", 
               "2018")
 
-TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
+# Map years to emp_turnover function
+Turnover_Rate <- map_dbl(tot_year, emp_turnover) %>%
   setNames(tot_year) %>%
   as.data.frame() %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
 
-View(TurnoverRate)
+# Median turnover
+Median_turnover <- Turnover_Rate %>% 
+  summarise(median = median(TurnoverRate)) %>% 
+  as.numeric() %>% print()
+
+# Graph turnover rate
+ggplot(Turnover_Rate, aes(x = Year, y = TurnoverRate, group = 1)) + 
+  geom_line() + 
+  geom_point() +
+  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
+  geom_hline(yintercept = Median_turnover, linetype = "dashed", color = "red") + 
+  theme_bw()
+  
