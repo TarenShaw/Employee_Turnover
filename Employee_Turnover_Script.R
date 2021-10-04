@@ -37,16 +37,15 @@ df %>% mutate(Year_termination = year(df$`DateofTermination`)) %>%
   geom_text(aes(label = n), vjust = -0.5) + 
   theme_bw() + geom_hline(yintercept= median_terminations, linetype="dashed", color = "red")
 
-#Write a function for avg employees
-avg_emp_year <- function(Hire_date = "2010-01-01", Term_date= "2010-12-31") {
+#Write a function for avg employees 2
+avg_emp_year <- function(year = "2010") {
+  
+  hire_year <- paste(year, "-01-01", sep = "")
+  term_year <- paste(year, "-12-31", sep = "")
   
   (df %>% select(DateofHire, DateofTermination) %>% 
-    filter(df$DateofHire < Hire_date | DateofTermination < Term_date) %>% 
-    nrow())/2
-
+     filter(df$DateofHire < hire_year | DateofTermination < term_year) %>% 
+     nrow())/2
+  
 }
-
-employees_year(Hire_date = "2011-01-01", Term_date = "2011-12-31")
-
-
 
