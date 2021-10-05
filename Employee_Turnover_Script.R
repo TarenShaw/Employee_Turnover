@@ -91,13 +91,11 @@ n_emp_year_end()
 emp_turnover <- function(year = "2010") {
 
   # Number of leavers
-
   leavers <- df %>%
     filter(year(DateofTermination) == year) %>%
     nrow()
 
   # number of employees at beginning of year
-
   fun_year1 <- paste(year, "-01-01", sep = "")
 
   start <- df %>%
@@ -109,7 +107,6 @@ emp_turnover <- function(year = "2010") {
     nrow()
 
   # Number of employees end of year
-
   year_num_plus <- as.character(as.numeric(year) + 1)
   fun_year2 <- paste(year_num_plus, "-01-01", sep = "")
 
@@ -125,16 +122,17 @@ emp_turnover <- function(year = "2010") {
   avg_emp_period <- (start + end) / 2
 
   # Enmployee turnover
-
   (leavers / avg_emp_period) * 100
 }
 
 emp_turnover()
 
 # Create a list of year
-tot_year <- c("2010", "2011", "2012", "2013", 
-              "2014", "2015", "2016", "2017", 
-              "2018")
+tot_year <- c(
+  "2010", "2011", "2012", "2013",
+  "2014", "2015", "2016", "2017",
+  "2018"
+)
 
 # Map years to emp_turnover function
 TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
@@ -143,9 +141,19 @@ TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
 
+TurnoverRate
+
+# Avg turnover rate
+Median_turn <- TurnoverRate %>%
+  summarise(median = median(TurnoverRate)) %>%
+  as.numeric()
+
+Median_turn
+
 # Graph turnover rate
-ggplot(TurnoverRate, aes(x = Year, y = TurnoverRate, group = 1)) + 
-  geom_line() + 
+ggplot(TurnoverRate, aes(x = Year, y = TurnoverRate, group = 1)) +
+  geom_line() +
   geom_point() +
-  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5)
-  
+  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
+  geom_hline(yintercept = Median_turn, linetype = "dashed", color = "red") +
+  theme_bw()
