@@ -15,7 +15,7 @@ df <- df %>% mutate(
 
 # How many leavers per year
 df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
+  mutate(Year_termination = year(DateofTermination)) %>%
   count(Year_termination) %>%
   drop_na(Year_termination) %>%
   mutate(Year_termination = factor(Year_termination)) %>%
@@ -28,7 +28,7 @@ df %>%
 
 # What is the mean number of leavers - some extreme outliers
 median_terminations <- df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
+  mutate(Year_termination = year(DateofTermination)) %>%
   count(Year_termination) %>%
   drop_na(Year_termination) %>%
   summarise(mean = median(n)) %>%
@@ -37,7 +37,7 @@ median_terminations <- df %>%
 
 # compare average leavers to leavers per year
 df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
+  mutate(Year_termination = year(DateofTermination)) %>%
   count(Year_termination) %>%
   drop_na(Year_termination) %>%
   ggplot(aes(x = Year_termination, y = n)) +
@@ -47,6 +47,16 @@ df %>%
   theme_bw() +
   geom_hline(yintercept = median_terminations, linetype = "dashed", color = "red")
 
+# Find min/max termination date
+min_max <- df %>%
+  drop_na(DateofTermination) %>%
+  summarise(min = min(DateofTermination), max = max(DateofTermination)) %>%
+  mutate(min = year(min), max = year(max))
+
+# Define years
+years <- seq(from = min_max$min, to = min_max$max, by = 1) %>%
+  as.character()
+
 # number of leavers in a year
 n_leavers <- function(year = "2010") {
   df %>%
@@ -54,7 +64,7 @@ n_leavers <- function(year = "2010") {
     nrow()
 }
 
-n_leavers()
+
 
 # number of emplyees at beginnning of year
 n_emp_year_start <- function(year = "2010") {
@@ -132,9 +142,11 @@ emp_turnover <- function(year = "2010") {
 emp_turnover()
 
 # Create a list of year
-tot_year <- c("2010", "2011", "2012", "2013", 
-              "2014", "2015", "2016", "2017", 
-              "2018")
+tot_year <- c(
+  "2010", "2011", "2012", "2013",
+  "2014", "2015", "2016", "2017",
+  "2018"
+)
 
 # Map years to emp_turnover function
 turnover_rate <- map_dbl(tot_year, emp_turnover) %>%
@@ -144,24 +156,15 @@ turnover_rate <- map_dbl(tot_year, emp_turnover) %>%
   rownames_to_column("Year")
 
 # Median turnover
-Median_turnover <- turnover_rate %>% 
-  summarise(median = median(TurnoverRate)) %>% 
-  as.numeric() %>% print()
+median_turnover <- turnover_rate %>%
+  summarise(median = median(TurnoverRate)) %>%
+  as.numeric() %>%
+  print()
 
 # Graph turnover rate
-ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) + 
-  geom_line() + 
+ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
+  geom_line() +
   geom_point() +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
-  geom_hline(yintercept = Median_turnover, linetype = "dashed", color = "red") + 
+  geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
   theme_bw()
-
-
-  
-  
-  
-  
-  
-
-
-  
