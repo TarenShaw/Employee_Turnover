@@ -13,39 +13,17 @@ df <- df %>% mutate(
   DateofHire = mdy(DateofHire)
 )
 
-# How many leavers per year
-df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
-  count(Year_termination) %>%
-  drop_na(Year_termination) %>%
-  mutate(Year_termination = factor(Year_termination)) %>%
-  mutate(Year_termination = fct_reorder(Year_termination, n)) %>%
-  ggplot(aes(x = Year_termination, y = n)) +
-  geom_col(fill = "#0072b1") +
-  geom_text(aes(label = n), hjust = -0.2) +
-  coord_flip() +
-  theme_bw()
-
-# What is the mean number of leavers - some extreme outliers
-median_terminations <- df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
-  count(Year_termination) %>%
-  drop_na(Year_termination) %>%
-  summarise(mean = median(n)) %>%
-  as.numeric() %>%
+# Find min/max termination date
+min_max <- df %>%
+  drop_na(DateofTermination) %>%
+  summarise(min = min(DateofTermination), max = max(DateofTermination)) %>%
   print()
 
-# compare average leavers to leavers per year
-df %>%
-  mutate(Year_termination = year(df$`DateofTermination`)) %>%
-  count(Year_termination) %>%
-  drop_na(Year_termination) %>%
-  ggplot(aes(x = Year_termination, y = n)) +
-  geom_line() +
-  geom_point() +
-  geom_text(aes(label = n), vjust = -0.5) +
-  theme_bw() +
-  geom_hline(yintercept = median_terminations, linetype = "dashed", color = "red")
+# Define years range
+years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
+  as.character()
+
+years
 
 # number of leavers in a year
 n_leavers <- function(year = "2010") {
@@ -53,8 +31,6 @@ n_leavers <- function(year = "2010") {
     filter(year(DateofTermination) == year) %>%
     nrow()
 }
-
-n_leavers()
 
 # number of emplyees at beginnning of year
 n_emp_year_start <- function(year = "2010") {
@@ -68,8 +44,6 @@ n_emp_year_start <- function(year = "2010") {
     ) %>%
     nrow()
 }
-
-n_emp_year_start()
 
 # number of employees at end of year
 n_emp_year_end <- function(year = "2010") {
@@ -85,7 +59,59 @@ n_emp_year_end <- function(year = "2010") {
     nrow()
 }
 
-n_emp_year_end()
+# Dataframes of Variabel functions
+df_count <- function(x) {
+  map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year")
+}
+
+functions <- c(n_leavers, n_emp_year_start, n_emp_year_end)
+func_names <- c("n_leavers", "n_emp_year_start", "n_emp_year_end")
+
+test <- map(functions, df_count) %>% setNames(func_names)
+test
+
+# Plot variables of tunrover function.
+var_turn_plt <- function(x, title = "Title") {
+
+  # find the median of x
+  print("Median")
+  median <- map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>%
+    summarise(median = median(n)) %>%
+    as.numeric() %>%
+    print()
+
+  # Plot df with median
+  print("Data.frame")
+  plt <- map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>%
+    print() %>%
+    ggplot(aes(x = .[, 1], y = .[, 2], group = 1)) +
+    geom_line(color = "#0072b1") +
+    geom_point(color = "#0072b1") +
+    geom_hline(yintercept = median, linetype = "dashed", color = "red") +
+    theme_bw() +
+    geom_text(aes(label = n), vjust = -0.5) +
+    labs(title = title) +
+    xlab("Year") +
+    ylab("n")
+
+  return(plt)
+}
+
+var_turn_plt(n_leavers, "Terminations")
+var_turn_plt(n_emp_year_start, "Employees Year Start")
+var_turn_plt(n_emp_year_end, "Employees Year End")
 
 # Employee turnover function
 emp_turnover <- function(year = "2010") {
@@ -125,6 +151,7 @@ emp_turnover <- function(year = "2010") {
   (leavers / avg_emp_period) * 100
 }
 
+<<<<<<< HEAD
 emp_turnover()
 
 # Create a list of year
@@ -134,13 +161,16 @@ tot_year <- c(
   "2018"
 )
 
+=======
+>>>>>>> 34d92fc08b6a6ecbd4f13abbda3b91033afcd9c7
 # Map years to emp_turnover function
-TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
-  setNames(tot_year) %>%
+turnover_rate <- map_dbl(years, emp_turnover) %>%
+  setNames(years) %>%
   as.data.frame() %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
 
+<<<<<<< HEAD
 TurnoverRate
 
 # Avg turnover rate
@@ -156,4 +186,18 @@ ggplot(TurnoverRate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_point() +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = Median_turn, linetype = "dashed", color = "red") +
+=======
+# Median turnover
+median_turnover <- turnover_rate %>%
+  summarise(median = median(TurnoverRate)) %>%
+  as.numeric() %>%
+  print()
+
+# Graph turnover rate
+ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
+  geom_line(color = "#0072b1") +
+  geom_point(color = "#0072b1") +
+  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
+  geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
+>>>>>>> 34d92fc08b6a6ecbd4f13abbda3b91033afcd9c7
   theme_bw()
