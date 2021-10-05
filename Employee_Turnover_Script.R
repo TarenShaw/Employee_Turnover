@@ -50,12 +50,12 @@ df %>%
 # Find min/max termination date
 min_max <- df %>%
   drop_na(DateofTermination) %>%
-  summarise(min = min(DateofTermination), max = max(DateofTermination)) %>%
-  mutate(min = year(min), max = year(max))
+  summarise(min = min(DateofTermination), max = max(DateofTermination)) %>% 
+  print()
 
-# Define years
-years <- seq(from = min_max$min, to = min_max$max, by = 1) %>%
-  as.character()
+# Define years range
+years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
+  as.character() 
 
 # number of leavers in a year
 n_leavers <- function(year = "2010") {
@@ -64,7 +64,12 @@ n_leavers <- function(year = "2010") {
     nrow()
 }
 
-
+# Create leavers dataframe
+map_dbl(years, n_leavers) %>% 
+  setNames(years) %>%
+  as.data.frame() %>%
+  setNames("leavers") %>%
+  rownames_to_column("Year")
 
 # number of emplyees at beginnning of year
 n_emp_year_start <- function(year = "2010") {
@@ -79,6 +84,12 @@ n_emp_year_start <- function(year = "2010") {
     nrow()
 }
 
+# Create n_emp_year_start dataframe
+map_dbl(years,n_emp_year_start) %>% 
+  setNames(years) %>%
+  as.data.frame() %>%
+  setNames("n_start") %>%
+  rownames_to_column("Year")
 n_emp_year_start()
 
 # number of employees at end of year
@@ -95,7 +106,13 @@ n_emp_year_end <- function(year = "2010") {
     nrow()
 }
 
-n_emp_year_end()
+# Create n_emp_year_end dataframe
+map_dbl(years,n_emp_year_end) %>% 
+  setNames(years) %>%
+  as.data.frame() %>%
+  setNames("n_end") %>%
+  rownames_to_column("Year")
+n_emp_year_start()
 
 # Employee turnover function
 emp_turnover <- function(year = "2010") {
