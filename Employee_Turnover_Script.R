@@ -1,5 +1,5 @@
 # Load Packages
-pacman::p_load(tidyverse, readr, lubridate, skimr, styler)
+pacman::p_load(tidyverse, readr, lubridate, skimr)
 
 # Load Data
 df <- readr::read_csv("HRDataset_v14.csv")
@@ -68,6 +68,7 @@ df_count <- function(x) {
     rownames_to_column("Year")
 }
 
+# Iterate over functions
 functions <- c(n_leavers, n_emp_year_start, n_emp_year_end)
 func_names <- c("n_leavers", "n_emp_year_start", "n_emp_year_end")
 
