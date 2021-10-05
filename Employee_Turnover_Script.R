@@ -74,7 +74,6 @@ func_names <- c("n_leavers", "n_emp_year_start", "n_emp_year_end")
 test <- map(functions, df_count) %>% setNames(func_names)
 test
 
-
 # Plot variables of tunrover function.
 var_turn_plt <- function(x, title = "Title") {
 
