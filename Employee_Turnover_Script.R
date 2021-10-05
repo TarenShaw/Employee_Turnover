@@ -23,20 +23,14 @@ min_max <- df %>%
 years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
   as.character()
 
+years
+
 # number of leavers in a year
 n_leavers <- function(year = "2010") {
   df %>%
     filter(year(DateofTermination) == year) %>%
     nrow()
 }
-
-# Create leavers dataframe
-map_dbl(years, n_leavers) %>%
-  setNames(years) %>%
-  as.data.frame() %>%
-  setNames("n") %>%
-  rownames_to_column("Year") %>%
-  print()
 
 # number of emplyees at beginnning of year
 n_emp_year_start <- function(year = "2010") {
@@ -50,13 +44,6 @@ n_emp_year_start <- function(year = "2010") {
     ) %>%
     nrow()
 }
-
-# Create n_emp_year_start dataframe
-map_dbl(years, n_emp_year_start) %>%
-  setNames(years) %>%
-  as.data.frame() %>%
-  setNames("n_start") %>%
-  rownames_to_column("Year")
 
 # number of employees at end of year
 n_emp_year_end <- function(year = "2010") {
@@ -72,16 +59,25 @@ n_emp_year_end <- function(year = "2010") {
     nrow()
 }
 
-# Create n_emp_year_end dataframe
-map_dbl(years, n_emp_year_end) %>%
-  setNames(years) %>%
-  as.data.frame() %>%
-  setNames("n_end") %>%
-  rownames_to_column("Year")
+# Dataframes of Variabel functions
+df_count <- function(x) {
+  map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year")
+}
+
+functions <- c(n_leavers, n_emp_year_start, n_emp_year_end)
+func_names <- c("n_leavers", "n_emp_year_start", "n_emp_year_end")
+
+test <- map(functions, df_count) %>% setNames(func_names)
+test
+
 
 # Plot variables of tunrover function.
 var_turn_plt <- function(x, title = "Title") {
-  
+
   # find the median of x
   print("Median")
   median <- map_dbl(years, x) %>%
@@ -90,8 +86,9 @@ var_turn_plt <- function(x, title = "Title") {
     setNames("n") %>%
     rownames_to_column("Year") %>%
     summarise(median = median(n)) %>%
-    as.numeric() %>% print()
-  
+    as.numeric() %>%
+    print()
+
   # Plot df with median
   print("Data.frame")
   plt <- map_dbl(years, x) %>%
@@ -108,10 +105,9 @@ var_turn_plt <- function(x, title = "Title") {
     geom_text(aes(label = n), vjust = -0.5) +
     labs(title = title) +
     xlab("Year") +
-    ylab("n") 
-  
+    ylab("n")
+
   return(plt)
-  
 }
 
 var_turn_plt(n_leavers, "Terminations")
