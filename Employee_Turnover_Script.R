@@ -137,34 +137,31 @@ tot_year <- c("2010", "2011", "2012", "2013",
               "2018")
 
 # Map years to emp_turnover function
-<<<<<<< HEAD
-Turnover_Rate <- map_dbl(tot_year, emp_turnover) %>%
-=======
-TurnoverRate <- map_dbl(tot_year, emp_turnover) %>%
->>>>>>> 668bf4ccd5bc22d1e8ccc59cc652e9d6e9cec47b
+turnover_rate <- map_dbl(tot_year, emp_turnover) %>%
   setNames(tot_year) %>%
   as.data.frame() %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
 
-<<<<<<< HEAD
 # Median turnover
-Median_turnover <- Turnover_Rate %>% 
+Median_turnover <- turnover_rate %>% 
   summarise(median = median(TurnoverRate)) %>% 
   as.numeric() %>% print()
 
 # Graph turnover rate
-ggplot(Turnover_Rate, aes(x = Year, y = TurnoverRate, group = 1)) + 
+ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) + 
   geom_line() + 
   geom_point() +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = Median_turnover, linetype = "dashed", color = "red") + 
   theme_bw()
-=======
-# Graph turnover rate
-ggplot(TurnoverRate, aes(x = Year, y = TurnoverRate, group = 1)) + 
-  geom_line() + 
-  geom_point() +
-  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5)
->>>>>>> 668bf4ccd5bc22d1e8ccc59cc652e9d6e9cec47b
+
+
+  
+  
+  
+  
+  
+
+
   
