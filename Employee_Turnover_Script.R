@@ -1,5 +1,6 @@
 # Load Packages
-pacman::p_load(tidyverse, readr, lubridate, skimr, styler)
+devtools::install_github('bbc/bbplot')
+pacman::p_load(tidyverse, readr, lubridate, skimr, styler, bbplot)
 
 # Load Data
 df <- readr::read_csv("HRDataset_v14.csv")
@@ -41,8 +42,8 @@ df %>%
   count(Year_termination) %>%
   drop_na(Year_termination) %>%
   ggplot(aes(x = Year_termination, y = n)) +
-  geom_line() +
-  geom_point() +
+  geom_line(color = "#0072b1") +
+  geom_point(color = "#0072b1") +
   geom_text(aes(label = n), vjust = -0.5) +
   theme_bw() +
   geom_hline(yintercept = median_terminations, linetype = "dashed", color = "red")
@@ -90,7 +91,6 @@ map_dbl(years,n_emp_year_start) %>%
   as.data.frame() %>%
   setNames("n_start") %>%
   rownames_to_column("Year")
-n_emp_year_start()
 
 # number of employees at end of year
 n_emp_year_end <- function(year = "2010") {
@@ -112,7 +112,6 @@ map_dbl(years,n_emp_year_end) %>%
   as.data.frame() %>%
   setNames("n_end") %>%
   rownames_to_column("Year")
-
 
 # Employee turnover function
 emp_turnover <- function(year = "2010") {
@@ -152,18 +151,9 @@ emp_turnover <- function(year = "2010") {
   (leavers / avg_emp_period) * 100
 }
 
-emp_turnover()
-
-# Create a list of year
-tot_year <- c(
-  "2010", "2011", "2012", "2013",
-  "2014", "2015", "2016", "2017",
-  "2018"
-)
-
 # Map years to emp_turnover function
-turnover_rate <- map_dbl(tot_year, emp_turnover) %>%
-  setNames(tot_year) %>%
+turnover_rate <- map_dbl(years, emp_turnover) %>%
+  setNames(years) %>%
   as.data.frame() %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
@@ -176,8 +166,8 @@ median_turnover <- turnover_rate %>%
 
 # Graph turnover rate
 ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
-  geom_line() +
-  geom_point() +
+  geom_line(color = "#0072b1") +
+  geom_point(color = "#0072b1") +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
   theme_bw()
