@@ -112,19 +112,17 @@ map_dbl(years,n_emp_year_end) %>%
   as.data.frame() %>%
   setNames("n_end") %>%
   rownames_to_column("Year")
-n_emp_year_start()
+
 
 # Employee turnover function
 emp_turnover <- function(year = "2010") {
 
   # Number of leavers
-
   leavers <- df %>%
     filter(year(DateofTermination) == year) %>%
     nrow()
 
   # number of employees at beginning of year
-
   fun_year1 <- paste(year, "-01-01", sep = "")
 
   start <- df %>%
@@ -136,7 +134,6 @@ emp_turnover <- function(year = "2010") {
     nrow()
 
   # Number of employees end of year
-
   year_num_plus <- as.character(as.numeric(year) + 1)
   fun_year2 <- paste(year_num_plus, "-01-01", sep = "")
 
@@ -152,7 +149,6 @@ emp_turnover <- function(year = "2010") {
   avg_emp_period <- (start + end) / 2
 
   # Enmployee turnover
-
   (leavers / avg_emp_period) * 100
 }
 
