@@ -1,0 +1,151 @@
+---
+title: "Employee Turnover Report"
+output:
+  pdf_document: default
+    
+---
+```{r include=FALSE}
+# Load Packages
+pacman::p_load(tidyverse, readr, lubridate, skimr)
+```
+
+```{r include=FALSE}
+# Load Data
+df <- readr::read_csv("HRDataset_v14.csv")
+```
+
+```{r include=FALSE}
+# Transform Data
+df <- df %>% mutate(
+  DateofTermination = mdy(DateofTermination),
+  DateofHire = mdy(DateofHire))
+```
+
+
+```{r include=FALSE}
+# Find min/max termination date
+min_max <- df %>%
+  drop_na(DateofTermination) %>%
+  summarise(min = min(DateofTermination), max = max(DateofTermination)) 
+
+min_year <- min_max$min %>% year() %>% as.character()
+max_year <- min_max$max %>% year() %>% as.character()
+
+min_period <- min_max$min %>% as.character()
+max_period <- min_max$max %>% as.character()
+
+```
+
+
+# Introduction
+
+This report serves to summarise the situation of employee turnover in the company for the years `r min_year` to `r max_year`. It is recommended that the HR council takes into account the conclusions garnered from the statistical anlysies generated from the study of the company's headcount reports which were downloaded from the HR system in use. This report serves to bring to the attention the current and past situation of employee turnover within the company to the HR council and hopes to help with creating a plan of action if it should be necessary.
+
+1. This report has been prepared to provide an up to date analysis of employee turnover and as part of the Business's workforce planning considerations.
+
+2. Employee turnover has been assessed on the basis of the number of employees leaving the Company as a percentage of the total number of staff (headcount) employed by the Company.
+
+3. This report presents the turnover figures between `r min_period` (date of the first termination) and `r max_period` (date of the last termination).
+
+# Analysis
+
+## Emplyee Turnover Rate
+
+Before presenting the analysis, it is important to define what employee turnover is and show the method for calculating yearly employee turnover. Turnover rate is the percentage of employees in a workforce that leave during a certain period of time, which includes involuntary and voluntary terminations (as defined in the HR system in use). In this report we have calculated it using the following formula:
+
+$$\ AnnualTurnoverRate = \frac{LeaversInPeriod}{(BeginningEmployeesInPeriod + EndingEmployeesInPeriod)/2}*100   $$
+
+
+### Leavers
+
+We have defiend leavers for this study as all terminations found within the HR system that are involuntray and voluntray. These include terminations such as termination, retirement, death, interagency transfers, and resignations. 
+
+In figure x we have aggregated all terminations by year, starting from the first recorded termination in the system on `r min_period` to the most recent termination recorded on `r max_period`.
+
+```{r include=FALSE}
+# Define years range
+years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
+  as.character()
+```
+
+```{r include=FALSE}
+n_leavers <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year) %>%
+    nrow()
+}
+```
+
+```{r echo=FALSE}
+var_turn_plt <- function(x, title = "Title") {
+
+  # find the median of x
+  
+  median <- map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>%
+    summarise(median = median(n)) %>%
+    as.numeric()
+  
+  # Plot df with median
+  plt <- map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>%
+    ggplot(aes(x = .[, 1], y = .[, 2], group = 1)) +
+    geom_line(color = "#0072b1") +
+    geom_point(color = "#0072b1") +
+    geom_hline(yintercept = median, linetype = "dashed", color = "red") +
+    theme_bw() +
+    geom_text(aes(label = n), vjust = -0.5) +
+    labs(title = title) +
+    xlab("Year") +
+    ylab("n")
+
+}
+
+n_leavers_plt <- var_turn_plt(n_leavers, "Terminations")
+n_leavers_plt
+```
+
+```{r}
+# Dataframes of Variabel functions
+df_count <- function(x) {
+  map_dbl(years, x) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>% 
+    tibble()
+}
+```
+
+
+```{r}
+median <- map_dbl(years, n_leavers) %>%
+    setNames(years) %>%
+    as.data.frame() %>%
+    setNames("n") %>%
+    rownames_to_column("Year") %>%
+    summarise(median = median(n)) %>%
+    as.numeric()
+
+max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n))
+para <- if (max_n_leaves_year == max_year) {
+F
+} else {
+T
+}  
+
+para
+```
+
+`r if(para){"xxx, as seen in fig x has the highest number of leavers so far"}` `r f(para){max_year}`
+From fig x we can conlude that 
+
+
+
+

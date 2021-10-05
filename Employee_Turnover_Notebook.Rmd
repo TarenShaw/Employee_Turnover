@@ -1,16 +1,22 @@
 ---
 title: "R Notebook"
 output:
-  html_document:
-    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+    highlight: tango
 ---
+Employee turnover is generally defined as the number of employees who leave a company within a certain period, typically one year. Employee turnover can be measured throughout the whole company or within individual departments. Its very important for HR to keep tabs not only on the total turnover rate within an organization but also within individual departments. Only when we compare turnover between companies of the same industry or within similar departments can we truly begin to establish conclusions if it is a problem or not.
+
+High turnover does not necessarily indicate that there is an issue, as many industries and job profiles have a high rotation of employees. However, if we compare turnover rates within industries and between similar departments, we can start to pick out discrepancies within our organization and decide weather we need to make some change and implement a strategy to lower turnover. 
+There are many tools and services today which can help HR create metrics that analyse their company’s workforce. During my time in University, I took a very keen liking to R programming, which is a programming language designed for statistical analysis, data manipulation and creating rich and meaningful visualizations. In this post I hope to demonstrate its usefulness in HR functions and especially in the analysis and automation of creating metrics for employee turnover within a company.
+
+I will be using a dataset that I obtained from Kaggle, an extensive community dedicated to data science and which hosts thousands of datasets published by both educational institutions and companys for people to test their data science skills on. The HR dataset I have  
 
 First we load all the packages we will be using for theis study. I recommend installing the package packman and using one of its built in function, p_load, to load/install mutliple packages at a time.
 
 ```{r}
 # Load Packages
-pacman::p_load(tidyverse, readr, lubridate, skimr)
-
+pacman::p_load(tidyverse, readr, lubridate, skimr, kableExtra)
 ```
 
 We then load the dataset we will use for this project
@@ -24,7 +30,7 @@ And we can skim our data
 
 ```{r}
 # Summary or Data
-skim(df)
+summary(df)
 ```
 Of the 18 character variables, two should be coded as dates, therefore we transform them using a mutate function.
 
