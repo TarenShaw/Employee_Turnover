@@ -151,18 +151,8 @@ emp_turnover <- function(year = "2010") {
   (leavers / avg_emp_period) * 100
 }
 
-<<<<<<< HEAD
 emp_turnover()
 
-# Create a list of year
-tot_year <- c(
-  "2010", "2011", "2012", "2013",
-  "2014", "2015", "2016", "2017",
-  "2018"
-)
-
-=======
->>>>>>> 34d92fc08b6a6ecbd4f13abbda3b91033afcd9c7
 # Map years to emp_turnover function
 turnover_rate <- map_dbl(years, emp_turnover) %>%
   setNames(years) %>%
@@ -170,23 +160,6 @@ turnover_rate <- map_dbl(years, emp_turnover) %>%
   setNames("TurnoverRate") %>%
   rownames_to_column("Year")
 
-<<<<<<< HEAD
-TurnoverRate
-
-# Avg turnover rate
-Median_turn <- TurnoverRate %>%
-  summarise(median = median(TurnoverRate)) %>%
-  as.numeric()
-
-Median_turn
-
-# Graph turnover rate
-ggplot(TurnoverRate, aes(x = Year, y = TurnoverRate, group = 1)) +
-  geom_line() +
-  geom_point() +
-  geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
-  geom_hline(yintercept = Median_turn, linetype = "dashed", color = "red") +
-=======
 # Median turnover
 median_turnover <- turnover_rate %>%
   summarise(median = median(TurnoverRate)) %>%
@@ -199,5 +172,4 @@ ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_point(color = "#0072b1") +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
->>>>>>> 34d92fc08b6a6ecbd4f13abbda3b91033afcd9c7
   theme_bw()
