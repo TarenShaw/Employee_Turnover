@@ -174,3 +174,5 @@ ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
   theme_bw()
+
+

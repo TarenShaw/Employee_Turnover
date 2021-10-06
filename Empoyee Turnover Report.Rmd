@@ -1,8 +1,11 @@
 ---
 title: "Employee Turnover Report"
+date: "`r Sys.Date()`"
+author: "Taren Shaw"
 output:
-  pdf_document: default
-    
+  pdf_document:
+    latex_engine: xelatex
+sansfont: Calibri Light
 ---
 ```{r include=FALSE}
 # Load Packages
@@ -143,8 +146,6 @@ T
 para
 ```
 
-`r if(para){"xxx, as seen in fig x has the highest number of leavers so far"}` `r f(para){max_year}`
-From fig x we can conlude that 
 
 
 
