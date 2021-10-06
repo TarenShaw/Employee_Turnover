@@ -114,7 +114,7 @@ n_leavers_plt <- var_turn_plt(n_leavers, "Terminations")
 n_leavers_plt
 ```
 
-```{r}
+```{r include=FALSE}
 # Dataframes of Variabel functions
 df_count <- function(x) {
   map_dbl(years, x) %>%
@@ -127,7 +127,7 @@ df_count <- function(x) {
 ```
 
 
-```{r}
+```{r include=FALSE}
 median <- map_dbl(years, n_leavers) %>%
     setNames(years) %>%
     as.data.frame() %>%
@@ -136,15 +136,27 @@ median <- map_dbl(years, n_leavers) %>%
     summarise(median = median(n)) %>%
     as.numeric()
 
-max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n))
-para <- if (max_n_leaves_year == max_year) {
+```
+
+```{r include=FALSE}
+max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(Year) %>% as.character()
+max_n_leavesr <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(n) %>% as.character()
+
+Eval1 <- if (max_n_leaves_year == max_year) {
 F
 } else {
 T
 }  
 
-para
+y <- paste("As shown in fig x we can see that", max_year, "has the highest number of leavers at", max_n_leavesr,".", "" sep = " ")
 ```
+
+
+
+
+
+
+`r if(Eval1){y}`
 
 
 
