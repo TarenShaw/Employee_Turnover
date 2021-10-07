@@ -143,17 +143,19 @@ max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(Year
 max_n_leavesr <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(n) %>% as.character()
 
 Eval1 <- if (max_n_leaves_year == max_year) {
-F
+"one"
 } else {
-T
+"two"
 }  
 
-y <- paste("As shown in fig 3 we can see that the year ", max_n_leaves_year, " has the highest number of leavers"," (", max_n_leavesr ,") ", "compared to the previous years. As the number of leavers is greater than previous years, this report recommends that the HR council investigates this matter further, not only using a descriptive analysis, but also a diagnostic one. We recommend that a deeper study is initiated into where these leavers are coming from in the company, what type of leavers they are (voluntary or involuntary), and other compounding factors.", sep = "")
+y <- paste("As shown in fig x we can see that the current year ", max_n_leaves_year, " has the highest number of leavers"," (", max_n_leavesr ,") ", "compared to the previous years. As the number of leavers is greater than previous years, this report recommends that the HR council investigates this matter further, not only using a descriptive analysis, but also a diagnostic one. We recommend that a deeper study is initiated into where these leavers are coming from in the company, what type of leavers they are (voluntary or involuntary), and other compounding factors.", sep = "")
+
+x <- "Test"
 ```
 
 
-`r if(Eval1){y}`
-
+`r if(Eval1 == "one"){y}`
+`r if(Eval1 == "two"){x}`
 
 
 
