@@ -175,4 +175,8 @@ ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
   theme_bw()
 
+# Current Year Leavers studied by type, department
+
+
+
 

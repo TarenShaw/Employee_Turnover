@@ -7,25 +7,24 @@ output:
     latex_engine: xelatex
 sansfont: Calibri Light
 ---
-```{r include=FALSE}
+```{r Load_Packages, include=FALSE}
 # Load Packages
 pacman::p_load(tidyverse, readr, lubridate, skimr)
 ```
 
-```{r include=FALSE}
+```{r Load_Data, include=FALSE}
 # Load Data
 df <- readr::read_csv("HRDataset_v14.csv")
 ```
 
-```{r include=FALSE}
-# Transform Data
+```{r Transform_Data, include=FALSE}
+# Convert date columns to type date
 df <- df %>% mutate(
   DateofTermination = mdy(DateofTermination),
   DateofHire = mdy(DateofHire))
 ```
 
-
-```{r include=FALSE}
+```{r Min_max, include=FALSE}
 # Find min/max termination date
 min_max <- df %>%
   drop_na(DateofTermination) %>%
@@ -50,6 +49,7 @@ This report serves to summarise the situation of employee turnover in the compan
 
 3. This report presents the turnover figures between `r min_period` (date of the first termination) and `r max_period` (date of the last termination).
 
+
 # Analysis
 
 ## Emplyee Turnover Rate
@@ -65,13 +65,13 @@ We have defiend leavers for this study as all terminations found within the HR s
 
 In figure x we have aggregated all terminations by year, starting from the first recorded termination in the system on `r min_period` to the most recent termination recorded on `r max_period`.
 
-```{r include=FALSE}
+```{r Year_range, include=FALSE}
 # Define years range
 years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
   as.character()
 ```
 
-```{r include=FALSE}
+```{r n_leavers, include=FALSE}
 n_leavers <- function(year = "2010") {
   df %>%
     filter(year(DateofTermination) == year) %>%
@@ -79,7 +79,7 @@ n_leavers <- function(year = "2010") {
 }
 ```
 
-```{r echo=FALSE}
+```{r n_leavers_plt, echo=FALSE}
 var_turn_plt <- function(x, title = "Title") {
 
   # find the median of x
@@ -126,8 +126,7 @@ df_count <- function(x) {
 }
 ```
 
-
-```{r include=FALSE}
+```{r median_n_leavers, include=FALSE}
 median <- map_dbl(years, n_leavers) %>%
     setNames(years) %>%
     as.data.frame() %>%
@@ -138,7 +137,7 @@ median <- map_dbl(years, n_leavers) %>%
 
 ```
 
-```{r include=FALSE}
+```{r Conditional_leavers_chunk, include=FALSE}
 # Conditional paragraph based on n_leavers value
 max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(Year) %>% as.character()
 max_n_leavesr <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(n) %>% as.character()
@@ -161,6 +160,8 @@ Past_year_if_max <- paste("As shown in fig x we can see that the year ", max_n_l
 `r if(Eval1 == "max_current"){Current_year_if_max}`
 `r if(Eval1 == "max_past"){Past_year_if_max}`
 
-### Terminations Current Year   
+### Terminations Current Year 
+
+
 
 
