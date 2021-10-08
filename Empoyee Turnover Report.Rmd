@@ -59,7 +59,7 @@ Before presenting the analysis, it is important to define what employee turnover
 $$\ AnnualTurnoverRate = \frac{LeaversInPeriod}{(BeginningEmployeesInPeriod + EndingEmployeesInPeriod)/2}*100   $$
 
 
-### Leavers
+### Historic Terminations by Year
 
 We have defiend leavers for this study as all terminations found within the HR system that are involuntray and voluntray. These include terminations such as termination, retirement, death, interagency transfers, and resignations. 
 
@@ -139,24 +139,28 @@ median <- map_dbl(years, n_leavers) %>%
 ```
 
 ```{r include=FALSE}
+# Conditional paragraph based on n_leavers value
 max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(Year) %>% as.character()
 max_n_leavesr <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(n) %>% as.character()
 
+# Condition if max leavers current year
 Eval1 <- if (max_n_leaves_year == max_year) {
-"one"
+"max_current"
 } else {
-"two"
-}  
+"max_past"
+}
 
-y <- paste("As shown in fig x we can see that the current year ", max_n_leaves_year, " has the highest number of leavers"," (", max_n_leavesr ,") ", "compared to the previous years. As the number of leavers is greater than previous years, this report recommends that the HR council investigates this matter further, not only using a descriptive analysis, but also a diagnostic one. We recommend that a deeper study is initiated into where these leavers are coming from in the company, what type of leavers they are (voluntary or involuntary), and other compounding factors.", sep = "")
+# Text displayed if n leavers is max for current year
+Current_year_if_max <- paste("As shown in fig x we can see that the current year ", max_n_leaves_year, " has the highest number of leavers"," (", max_n_leavesr ,") ", "compared to the previous years. Furthermore, the number of leavers for the current year ", max_year, "Is greater than the median", " (", median ,") ",  "As the number of leavers is greater than previous years, this report recommends that the HR council investigates this matter further, not only using a descriptive analysis, but also a diagnostic one. We recommend that a deeper study is initiated into where these leavers are coming from in the company, what type of leavers they are (voluntary or involuntary), and other compounding factors.", sep = "")
 
-x <- "Test"
+# Text displayed if n leavers is max for past year
+Past_year_if_max <- paste("As shown in fig x we can see that the year ", max_n_leaves_year, " has the highest number of leavers"," (", max_n_leavesr ,"). " , "Furthermore, the number of leavers for this year " ," (", max_n_leaves_year ,") ", "is greater than the median", " (", median ,").",  "As this pertains to a past year date, if the HR council has not studied the reason for this amount of terminations it may be beneficial to do so to contrast with the current year", " (", max_year ,") ", ". We recommend that a deeper study is initiated into where these leavers came from in the company, what type of leavers they were (voluntary or involuntary), and other compounding factors.", sep = "")
 ```
 
 
-`r if(Eval1 == "one"){y}`
-`r if(Eval1 == "two"){x}`
+`r if(Eval1 == "max_current"){Current_year_if_max}`
+`r if(Eval1 == "max_past"){Past_year_if_max}`
 
-
+### Terminations Current Year   
 
 
