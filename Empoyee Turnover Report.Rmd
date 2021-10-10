@@ -110,7 +110,7 @@ var_turn_plt <- function(x, title = "Title") {
 
 }
 
-n_leavers_plt <- var_turn_plt(n_leavers, "Terminations")
+n_leavers_plt <- var_turn_plt(n_leavers, "Terminations by Year")
 n_leavers_plt
 ```
 
@@ -140,6 +140,7 @@ median <- map_dbl(years, n_leavers) %>%
 ```{r Conditional_leavers_chunk, include=FALSE}
 # Conditional paragraph based on n_leavers value
 max_n_leaves_year <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(Year) %>% as.character()
+
 max_n_leavesr <- df_count(n_leavers) %>% filter(n == max(n)) %>% select(n) %>% as.character()
 
 # Condition if max leavers current year
@@ -160,7 +161,25 @@ Past_year_if_max <- paste("As shown in fig x we can see that the year ", max_n_l
 `r if(Eval1 == "max_current"){Current_year_if_max}`
 `r if(Eval1 == "max_past"){Past_year_if_max}`
 
-### Terminations Current Year 
+### Terminations Current Year (`r max_year`) 
+
+```{r echo=FALSE}
+n_leavers2 <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year) 
+}
+
+n_leavers2(max_year) %>% 
+  select(TermReason, EmploymentStatus) %>%
+  count(TermReason, EmploymentStatus) %>% 
+  mutate(TermReason = fct_reorder(TermReason, n)) %>% 
+  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) + 
+  geom_col() +
+  theme_bw() +
+  coord_flip() +
+  labs( titel ="Terminations Current Year")
+```
+
 
 
 

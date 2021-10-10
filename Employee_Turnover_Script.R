@@ -175,8 +175,56 @@ ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
   theme_bw()
 
-# Current Year Leavers studied by type, department
+# Current Year Leavers studied by Term Reason, Employment Status
+n_leavers2 <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year)
+}
 
+n_leavers2("2018") %>%
+  select(TermReason, EmploymentStatus) %>%
+  count(TermReason, EmploymentStatus) %>%
+  mutate(TermReason = fct_reorder(TermReason, n)) %>%
+  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) +
+  geom_col() +
+  theme_bw() +
+  coord_flip()
 
+# Current Year Leavers studied by Term Reason, Employment Status
+n_leavers2 <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year)
+}
 
+n_leavers2("2018") %>%
+  select(TermReason, EmploymentStatus) %>%
+  count(TermReason, EmploymentStatus) %>%
+  mutate(TermReason = fct_reorder(TermReason, n)) %>%
+  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) +
+  geom_col() +
+  theme_bw() +
+  coord_flip()
 
+# Current Year Leavers studied by Term Reason, Employment Status
+n_leavers2 <- function(year = "2010") {
+  df %>%
+    filter(year(DateofTermination) == year)
+}
+
+n_leavers2("2018") %>%
+  select(TermReason, EmploymentStatus) %>%
+  count(TermReason, EmploymentStatus) %>%
+  mutate(TermReason = fct_reorder(TermReason, n)) %>%
+  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) +
+  geom_col() +
+  theme_bw() +
+  coord_flip()
+
+# Job role with highest Turnover
+df %>% mutate(EmploymentStatus = case_when(
+  EmploymentStatus == "Active" ~ "Active",
+  TRUE ~ "Inactive"
+  )) %>%
+  count()
+  ggplot(aes())
+  
