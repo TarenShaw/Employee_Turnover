@@ -224,7 +224,7 @@ df %>%
   theme_bw()
 
 
-# Leavers per job prifle
+# Turnover Rate by job profile and year
 emp_turnover_JP <- function(year = "2010") {
   term_test <- df %>%
     filter(year(DateofTermination) == year) %>%
@@ -263,9 +263,34 @@ emp_turnover_JP <- function(year = "2010") {
   return(join_turnover_year)
 }
 
-# Create a list of turnover by year by job profile.
+# Create a df of turnover by job profile
 map(years, emp_turnover_JP) %>%
   reduce(full_join, by = "Position") %>%
   setNames(c("Position", years)) %>%
-  clean_names() %>%
-  gather("Year", "Turnover", 2:10)
+  clean_names() %>% 
+  gather("Year", "Turnover", 2:10) %>% 
+  drop_na(Turnover) %>% 
+  spread(key = "Year", value = "Turnover")
+
+# Arrange Turnover by job profile and year
+map(years, emp_turnover_JP) %>%
+  reduce(full_join, by = "Position") %>%
+  setNames(c("Position", years)) %>%
+  clean_names() %>% 
+  gather("Year", "Turnover", 2:10) %>% 
+  mutate( position = fct_reorder(position, Turnover)) %>% 
+  arrange(desc(Turnover))
+
+# Graph Turnover by job profile and year
+map(years, emp_turnover_JP) %>%
+  reduce(full_join, by = "Position") %>%
+  setNames(c("Position", years)) %>%
+  clean_names() %>% 
+  gather("Year", "Turnover", 2:10) %>% 
+  mutate( position = fct_reorder(position, Turnover)) %>% 
+  drop_na(Turnover) %>% 
+  ggplot(aes(x = position, y = Turnover)) + 
+  geom_col(fill = "#0e76a8") +
+  facet_wrap(~ Year) +
+  coord_flip() +
+  theme_bw()
