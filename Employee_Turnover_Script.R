@@ -1,5 +1,5 @@
 # Load Packages
-pacman::p_load(tidyverse, readr, lubridate, skimr)
+pacman::p_load(tidyverse, readr, lubridate, skimr, RColorBrewer, janitor)
 
 # Load Data
 df <- readr::read_csv("HRDataset_v14.csv")
@@ -23,7 +23,12 @@ min_max <- df %>%
 years <- seq(from = year(min_max$min), to = year(min_max$max), by = 1) %>%
   as.character()
 
-years
+# number of hires in a year
+n_hires <- function(year = "2010") {
+  df %>%
+    filter(year(DateofHire) == year) %>%
+    nrow()
+}
 
 # number of leavers in a year
 n_leavers <- function(year = "2010") {
@@ -67,6 +72,20 @@ df_count <- function(x) {
     setNames("n") %>%
     rownames_to_column("Year")
 }
+
+# Plot of Beginning and End Headcount, Hires and Terminations
+df_count(n_emp_year_start) %>%
+  right_join(y = df_count(n_emp_year_end), by = "Year") %>%
+  right_join(y = df_count(n_hires), by = "Year") %>%
+  right_join(y = df_count(n_leavers), by = "Year") %>%
+  setNames(c("Year", "Year Start", "Year End", "Hires", "Terminations")) %>%
+  gather("WFA", "n", 2:5) %>%
+  ggplot(aes(x = Year, y = n, color = WFA, group = WFA)) +
+  geom_line() +
+  theme_bw() +
+  geom_text(aes(label = n), vjust = -0.5) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Workfroce Adminstration Stats by Year")
 
 # Iterate over functions
 functions <- c(n_leavers, n_emp_year_start, n_emp_year_end)
@@ -167,12 +186,13 @@ median_turnover <- turnover_rate %>%
   as.numeric() %>%
   print()
 
-# Graph turnover rate
+# Graph total turnover rate by year
 ggplot(turnover_rate, aes(x = Year, y = TurnoverRate, group = 1)) +
   geom_line(color = "#0072b1") +
   geom_point(color = "#0072b1") +
   geom_text(aes(label = round(TurnoverRate, digits = 2)), vjust = -0.5) +
   geom_hline(yintercept = median_turnover, linetype = "dashed", color = "red") +
+  labs(title = "Turnover Rate by Year") +
   theme_bw()
 
 # Current Year Leavers studied by Term Reason, Employment Status
@@ -190,41 +210,62 @@ n_leavers2("2018") %>%
   theme_bw() +
   coord_flip()
 
-# Current Year Leavers studied by Term Reason, Employment Status
-n_leavers2 <- function(year = "2010") {
-  df %>%
-    filter(year(DateofTermination) == year)
-}
-
-n_leavers2("2018") %>%
-  select(TermReason, EmploymentStatus) %>%
-  count(TermReason, EmploymentStatus) %>%
-  mutate(TermReason = fct_reorder(TermReason, n)) %>%
-  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) +
-  geom_col() +
-  theme_bw() +
-  coord_flip()
-
-# Current Year Leavers studied by Term Reason, Employment Status
-n_leavers2 <- function(year = "2010") {
-  df %>%
-    filter(year(DateofTermination) == year)
-}
-
-n_leavers2("2018") %>%
-  select(TermReason, EmploymentStatus) %>%
-  count(TermReason, EmploymentStatus) %>%
-  mutate(TermReason = fct_reorder(TermReason, n)) %>%
-  ggplot(aes(x = TermReason, y = n, fill = EmploymentStatus)) +
-  geom_col() +
-  theme_bw() +
-  coord_flip()
-
-# Job role with highest Turnover
-df %>% mutate(EmploymentStatus = case_when(
-  EmploymentStatus == "Active" ~ "Active",
-  TRUE ~ "Inactive"
+# Job role Active vs Inactive
+df %>%
+  mutate(EmploymentStatus = case_when(
+    EmploymentStatus == "Active" ~ "Active",
+    TRUE ~ "Inactive"
   )) %>%
-  count()
-  ggplot(aes())
-  
+  count(Position, EmploymentStatus) %>%
+  mutate(Position = fct_reorder(Position, n)) %>%
+  arrange(desc(Position)) %>%
+  ggplot(aes(y = Position, x = n)) +
+  geom_col(aes(fill = EmploymentStatus), position = position_stack(reverse = TRUE)) +
+  theme_bw()
+
+
+# Leavers per job prifle
+emp_turnover_JP <- function(year = "2010") {
+  term_test <- df %>%
+    filter(year(DateofTermination) == year) %>%
+    count(Position)
+
+  # Start employees by job profile
+  fun_year_job <- paste(year, "-01-01", sep = "")
+
+  start_test <- df %>%
+    select(DateofHire, DateofTermination, Position) %>%
+    filter(
+      DateofHire <= fun_year_job,
+      DateofTermination > fun_year_job | is.na(DateofTermination)
+    ) %>%
+    count(Position)
+
+  # Employees End year per position
+  year_pos <- year %>% as.character()
+  year_num_plus_pos <- as.character(as.numeric(year_pos) + 1)
+  fun_year2_pos <- paste(year_num_plus_pos, "-01-01", sep = "")
+
+  end_test <- df %>%
+    select(DateofHire, DateofTermination, Position) %>%
+    filter(
+      DateofHire <= fun_year2_pos,
+      DateofTermination > fun_year2_pos | is.na(DateofTermination)
+    ) %>%
+    count(Position)
+
+  join_turnover_year <- full_join(start_test, end_test, by = "Position") %>%
+    full_join(y = term_test, by = "Position") %>%
+    setNames(c("Position", "Start_Headcount", "End_Headcount", "Terminations")) %>%
+    group_by(Position) %>%
+    summarise(Turnover = ((Terminations) / (Start_Headcount + End_Headcount)) * 100)
+
+  return(join_turnover_year)
+}
+
+# Create a list of turnover by year by job profile.
+map(years, emp_turnover_JP) %>%
+  reduce(full_join, by = "Position") %>%
+  setNames(c("Position", years)) %>%
+  clean_names() %>%
+  gather("Year", "Turnover", 2:10)
