@@ -299,18 +299,52 @@ map(years, emp_turnover_JP) %>%
   coord_flip() +
   theme_bw()
 
-# starting test
-emp_term_var <- function(data, colName, year = "2015") {
-  colName <- enquo(colName) 
+# Employee turnover - function with data, var and year argument
+emp_turnover_fun <- function(data, colName, year = "2015") {
+  
+  # Convert colName to symbol or check if symbol
+  colName <- ensym(colName)
+  print(colName)
+  
+  # Terminations by year and variable in df
   term_test <- data %>%
     filter(year(DateofTermination) == year) %>%
-    group_by(UQ(colName)) %>%
-    count(UQ(colName)) %>%
+    count(!!(colName)) %>%
     clean_names()
-  return(term_test)
+  
+  # Start employees by var and year
+  fun_year_job <- paste(year, "-01-01", sep = "")
+  start_test <- data %>%
+    select(DateofHire, DateofTermination, !!(colName)) %>%
+    filter(
+      DateofHire <= fun_year_job,
+      DateofTermination > fun_year_job | is.na(DateofTermination)
+    ) %>%
+    count(!!(colName))
+  
+  # End employees by year and var
+  year_pos <- year %>% as.character()
+  year_num_plus_pos <- as.character(as.numeric(year_pos) + 1)
+  fun_year2_pos <- paste(year_num_plus_pos, "-01-01", sep = "")
+  
+  end_test <- data %>%
+    select(DateofHire, DateofTermination, !!(colName)) %>%
+    filter(
+      DateofHire <= fun_year2_pos,
+      DateofTermination > fun_year2_pos | is.na(DateofTermination)
+    ) %>%
+    count(!!(colName))
+  
+  join_turnover_year <- full_join(start_test, end_test, by = str(colName)) %>%
+    full_join(y = term_test, by = str(colName)) %>%
+    setNames(c(str(colName), "Start_Headcount", "End_Headcount", "Terminations")) %>%
+    group_by({{colName}}) %>%
+    summarise(Turnover = ((Terminations) / (Start_Headcount + End_Headcount)) * 100)
+  
+  return(join_turnover_year)
 }
 
-emp_term_var(df, Department, year = "2015")
-
-map(years, ~ emp_term_var(df, State, year = .x)) %>% setNames(years)
+emp_turnover_fun(data = df, colName = Department)
+#dep <-c("Department", "State")
+#map(dep, ~ emp_term_var(df, colName = !!.x, year = "2015")) 
 
