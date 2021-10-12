@@ -1,5 +1,9 @@
 # Load Packages
-pacman::p_load(tidyverse, readr, lubridate, skimr, RColorBrewer, janitor)
+pacman::p_load(
+  tidyverse, readr, lubridate,
+  skimr, RColorBrewer, janitor,
+  rlang
+)
 
 # Load Data
 df <- readr::read_csv("HRDataset_v14.csv")
@@ -267,46 +271,46 @@ emp_turnover_JP <- function(year = "2010") {
 map(years, emp_turnover_JP) %>%
   reduce(full_join, by = "Position") %>%
   setNames(c("Position", years)) %>%
-  clean_names() %>% 
-  gather("Year", "Turnover", 2:10) %>% 
-  drop_na(Turnover) %>% 
+  clean_names() %>%
+  gather("Year", "Turnover", 2:10) %>%
+  drop_na(Turnover) %>%
   spread(key = "Year", value = "Turnover")
 
 # Arrange Turnover by job profile and year
 map(years, emp_turnover_JP) %>%
   reduce(full_join, by = "Position") %>%
   setNames(c("Position", years)) %>%
-  clean_names() %>% 
-  gather("Year", "Turnover", 2:10) %>% 
-  mutate( position = fct_reorder(position, Turnover)) %>% 
+  clean_names() %>%
+  gather("Year", "Turnover", 2:10) %>%
+  mutate(position = fct_reorder(position, Turnover)) %>%
   arrange(desc(Turnover))
 
 # Graph Turnover by job profile and year
 map(years, emp_turnover_JP) %>%
   reduce(full_join, by = "Position") %>%
   setNames(c("Position", years)) %>%
-  clean_names() %>% 
-  gather("Year", "Turnover", 2:10) %>% 
-  mutate( position = fct_reorder(position, Turnover)) %>% 
-  drop_na(Turnover) %>% 
-  ggplot(aes(x = position, y = Turnover)) + 
+  clean_names() %>%
+  gather("Year", "Turnover", 2:10) %>%
+  mutate(position = fct_reorder(position, Turnover)) %>%
+  drop_na(Turnover) %>%
+  ggplot(aes(x = position, y = Turnover)) +
   geom_col(fill = "#0e76a8") +
-  facet_wrap(~ Year) +
+  facet_wrap(~Year) +
   coord_flip() +
   theme_bw()
 
 # starting test
-emp_turnover_test <- function(colName, year = "2010") {
-  myenc <- enquo(colName)
-  term_test <- df %>%
+emp_term_var <- function(data, colName, year = "2015") {
+  colName <- enquo(colName) 
+  term_test <- data %>%
     filter(year(DateofTermination) == year) %>%
-    group_by(UQ(myenc)) %>% 
-    count(UQ(myenc)) %>% clean_names()
+    group_by(UQ(colName)) %>%
+    count(UQ(colName)) %>%
+    clean_names()
   return(term_test)
 }
 
-emp_turnover_test("Department", year = "2015")
+emp_term_var(df, Department, year = "2015")
 
-columnx = list("Department")
-pmap(list("Department", years), emp_turnover_test)
+map(years, ~ emp_term_var(df, State, year = .x)) %>% setNames(years)
 
