@@ -304,7 +304,7 @@ emp_turnover_fun <- function(data, colName, year = "2015") {
 
   # Convert colName to symbol or check if symbol
   colName <- ensym(colName)
-  colName_str <- rlang::as_string(colName)
+  colName_str <- as_string(colName)
 
   # Terminations by year and variable in df
   term_test <- data %>%
