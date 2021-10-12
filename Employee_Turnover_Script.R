@@ -301,16 +301,15 @@ map(years, emp_turnover_JP) %>%
 
 # Employee turnover - function with data, var and year argument
 emp_turnover_fun <- function(data, colName, year = "2015") {
-  
+
   # Convert colName to symbol or check if symbol
   colName <- ensym(colName)
-  print(colName)
-  
+  colName_str <- rlang::as_string(colName)
+
   # Terminations by year and variable in df
   term_test <- data %>%
     filter(year(DateofTermination) == year) %>%
-    count(!!(colName)) %>%
-    clean_names()
+    count(!!(colName))
   
   # Start employees by var and year
   fun_year_job <- paste(year, "-01-01", sep = "")
@@ -326,7 +325,7 @@ emp_turnover_fun <- function(data, colName, year = "2015") {
   year_pos <- year %>% as.character()
   year_num_plus_pos <- as.character(as.numeric(year_pos) + 1)
   fun_year2_pos <- paste(year_num_plus_pos, "-01-01", sep = "")
-  
+
   end_test <- data %>%
     select(DateofHire, DateofTermination, !!(colName)) %>%
     filter(
@@ -334,17 +333,20 @@ emp_turnover_fun <- function(data, colName, year = "2015") {
       DateofTermination > fun_year2_pos | is.na(DateofTermination)
     ) %>%
     count(!!(colName))
-  
-  join_turnover_year <- full_join(start_test, end_test, by = str(colName)) %>%
-    full_join(y = term_test, by = str(colName)) %>%
-    setNames(c(str(colName), "Start_Headcount", "End_Headcount", "Terminations")) %>%
-    group_by({{colName}}) %>%
+
+  #Join the objects together. 
+  join_turnover_year <- full_join(start_test, end_test,
+    by = colName_str) %>% 
+    full_join(y = term_test, by = colName_str) %>% 
+    setNames(c(colName_str, "Start_Headcount", "End_Headcount",
+      "Terminations")) %>% 
+    group_by({{ colName }}) %>%
     summarise(Turnover = ((Terminations) / (Start_Headcount + End_Headcount)) * 100)
-  
+
   return(join_turnover_year)
 }
 
-emp_turnover_fun(data = df, colName = Department)
-#dep <-c("Department", "State")
-#map(dep, ~ emp_term_var(df, colName = !!.x, year = "2015")) 
+emp_turnover_fun(df, Department, year = "2015")
 
+# dep <-c("Department", "State")
+# map(dep, ~ emp_term_var(df, colName = !!.x, year = "2015"))
