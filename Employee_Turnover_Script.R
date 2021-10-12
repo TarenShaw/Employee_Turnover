@@ -294,3 +294,19 @@ map(years, emp_turnover_JP) %>%
   facet_wrap(~ Year) +
   coord_flip() +
   theme_bw()
+
+# starting test
+emp_turnover_test <- function(colName, year = "2010") {
+  myenc <- enquo(colName)
+  term_test <- df %>%
+    filter(year(DateofTermination) == year) %>%
+    group_by(UQ(myenc)) %>% 
+    count(UQ(myenc)) %>% clean_names()
+  return(term_test)
+}
+
+emp_turnover_test("Department", year = "2015")
+
+columnx = list("Department")
+pmap(list("Department", years), emp_turnover_test)
+
