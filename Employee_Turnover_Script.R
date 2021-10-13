@@ -301,18 +301,18 @@ map(years, emp_turnover_JP) %>%
 
 # Employee turnover - function with data, var and year argument
 Overall_turnover_rate <- function(data, colName, year) {
-  
+
   # Convert colName to symbol or check if symbol
   colName <- ensym(colName)
-  
+
   # Convert ColName to string
   colName_str <- as_string(colName)
-  
+
   # Terminations by year and variable in df
   Terminations <- data %>%
     filter(year(DateofTermination) == year) %>%
     count(!!(colName))
-  
+
   # Start employees by var and year
   Fun_year <- paste(year, "-01-01", sep = "")
   Headcount_year_start <- data %>%
@@ -322,12 +322,12 @@ Overall_turnover_rate <- function(data, colName, year) {
       DateofTermination > Fun_year | is.na(DateofTermination)
     ) %>%
     count(!!(colName))
-  
+
   # End employees by year and var
   Year_chr <- year %>% as.character()
   Year_plus_one <- as.character(as.numeric(Year_chr) + 1)
   Fun_year2 <- paste(Year_plus_one, "-01-01", sep = "")
-  
+
   Headcount_year_end <- data %>%
     select(DateofHire, DateofTermination, !!(colName)) %>%
     filter(
@@ -335,10 +335,10 @@ Overall_turnover_rate <- function(data, colName, year) {
       DateofTermination > Fun_year2 | is.na(DateofTermination)
     ) %>%
     count(!!(colName))
-  
+
   # Join the objects together.
   Overall_turnover_rate <- full_join(Headcount_year_start, Headcount_year_end,
-                                     by = colName_str
+    by = colName_str
   ) %>%
     full_join(y = Terminations, by = colName_str) %>%
     setNames(c(
@@ -347,11 +347,12 @@ Overall_turnover_rate <- function(data, colName, year) {
     )) %>%
     group_by({{ colName }}) %>%
     summarise(Turnover = ((Terminations) / (Start_Headcount + End_Headcount)) * 100)
-  
-  x <- list(Headcount_year_start, Headcount_year_end, Terminations, Overall_turnover_rate) %>% setNames(c("Headcount_year_start", "Headcount_year_end", "Terminations", "Overall_turnover_rate"))
-  return(x)
-  
+
+  # Store all objects within function in x
+  x <- list(Headcount_year_start, Headcount_year_end, Terminations, Overall_turnover_rate) %>%
+    setNames(c("Headcount_year_start", "Headcount_year_end", "Terminations", "Overall_turnover_rate"))
+ 
+   return(x)
 }
 
 x <- map(years, ~ Overall_turnover_rate(df, Department, year = .x)) %>% setNames(years)
-
