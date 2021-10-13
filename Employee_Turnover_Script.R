@@ -300,53 +300,58 @@ map(years, emp_turnover_JP) %>%
   theme_bw()
 
 # Employee turnover - function with data, var and year argument
-emp_turnover_fun <- function(data, colName, year = "2015") {
-
+Overall_turnover_rate <- function(data, colName, year) {
+  
   # Convert colName to symbol or check if symbol
   colName <- ensym(colName)
+  
+  # Convert ColName to string
   colName_str <- as_string(colName)
-
+  
   # Terminations by year and variable in df
-  term_test <- data %>%
+  Terminations <- data %>%
     filter(year(DateofTermination) == year) %>%
     count(!!(colName))
-
+  
   # Start employees by var and year
-  fun_year_job <- paste(year, "-01-01", sep = "")
-  start_test <- data %>%
+  Fun_year <- paste(year, "-01-01", sep = "")
+  Headcount_year_start <- data %>%
     select(DateofHire, DateofTermination, !!(colName)) %>%
     filter(
-      DateofHire <= fun_year_job,
-      DateofTermination > fun_year_job | is.na(DateofTermination)
+      DateofHire <= Fun_year,
+      DateofTermination > Fun_year | is.na(DateofTermination)
     ) %>%
     count(!!(colName))
-
+  
   # End employees by year and var
-  year_pos <- year %>% as.character()
-  year_num_plus_pos <- as.character(as.numeric(year_pos) + 1)
-  fun_year2_pos <- paste(year_num_plus_pos, "-01-01", sep = "")
-
-  end_test <- data %>%
+  Year_chr <- year %>% as.character()
+  Year_plus_one <- as.character(as.numeric(Year_chr) + 1)
+  Fun_year2 <- paste(Year_plus_one, "-01-01", sep = "")
+  
+  Headcount_year_end <- data %>%
     select(DateofHire, DateofTermination, !!(colName)) %>%
     filter(
-      DateofHire <= fun_year2_pos,
-      DateofTermination > fun_year2_pos | is.na(DateofTermination)
+      DateofHire <= Fun_year2,
+      DateofTermination > Fun_year2 | is.na(DateofTermination)
     ) %>%
     count(!!(colName))
-
+  
   # Join the objects together.
-  join_turnover_year <- full_join(start_test, end_test,
-    by = colName_str
+  Overall_turnover_rate <- full_join(Headcount_year_start, Headcount_year_end,
+                                     by = colName_str
   ) %>%
-    full_join(y = term_test, by = colName_str) %>%
+    full_join(y = Terminations, by = colName_str) %>%
     setNames(c(
       colName_str, "Start_Headcount", "End_Headcount",
       "Terminations"
     )) %>%
     group_by({{ colName }}) %>%
     summarise(Turnover = ((Terminations) / (Start_Headcount + End_Headcount)) * 100)
-
-  return(join_turnover_year)
+  
+  x <- list(Headcount_year_start, Headcount_year_end, Terminations, Overall_turnover_rate) %>% setNames(c("Headcount_year_start", "Headcount_year_end", "Terminations", "Overall_turnover_rate"))
+  return(x)
+  
 }
 
-map(years, ~ emp_turnover_fun(df, Department, year = .x)) 
+x <- map(years, ~ Overall_turnover_rate(df, Department, year = .x)) %>% setNames(years)
+
